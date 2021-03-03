@@ -1,26 +1,79 @@
 const canvas = document.querySelector('#jsCanvas');
 const colors = document.querySelectorAll('.jsColor');
 const colorArr = Array.from(colors);
+const range = document.querySelector('#jsRange');
+const mode = document.querySelector('#jsMode');
+const save = document.querySelector('#jsSave');
 
 canvas.width = 650;    //canvas의 크기를 정의해줘야 ctx에서 크기를 받아들임
 canvas.height = 650;   //실제 pixel size를 주는 것임 
+
 const ctx = canvas.getContext('2d');
+ctx.fillStyle = "white";
+ctx.fillRect(0, 0, canvas.width, canvas.height);
 ctx.strokeStyle = "#2c2c2c";
 ctx.lineWidth = 2.5;
+ctx.fillStyle = "#2c2c2c";
+
 
 let painting = false;
+let filling = false;
 
 colorArr.forEach(event => event.addEventListener('click', changeColor));
 
 function changeColor(event) {
   const color = event.target.style.backgroundColor;
   ctx.strokeStyle = color;
+  ctx.fillStyle = color;
 }
+
+range.addEventListener('input', handeRangeChange);
+
+function handeRangeChange() {
+  const size = event.target.value;
+  ctx.lineWidth = size;
+}
+
+mode.addEventListener('click', handleMode);
+
+function handleMode() {  
+   if (filling === true) {
+    filling = false;
+    mode.innerText = 'Fill';
+    } else {
+     filling = true;
+     mode.innerText = 'Draw';
+    }
+}
+
+save.addEventListener('click', handleSave);
+
+function handleSave () {
+   const image = canvas.toDataURL('image/jpeg');
+   const link = document.createElement('a');
+   link.href = image;
+   link.download = 'pictureSave';
+   link.click();  //fake click
+}
+
+
+
+
 if(canvas) {             //이렇게 하면 exist의 여부를 알수 있는군
   canvas.addEventListener('mousemove', onMouseMove);
   canvas.addEventListener('mousedown', startPainting);
   canvas.addEventListener('mouseup', stopPainting);      
   canvas.addEventListener('mouseleave', stopPainting);  
+  canvas.addEventListener('click',handleCanvasClick);
+  canvas.addEventListener('contextmenu', handleRightClick);
+}
+function handleRightClick(event){
+  event.preventDefault();
+}
+
+function handleCanvasClick(){
+  if(filling ===true)
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
 }
 
 function onMouseMove(event) {
@@ -45,6 +98,8 @@ function stopPainting() {
 }
 
 function startPainting() {
+  if(filling === false);
   painting = true;
 }
+
 
